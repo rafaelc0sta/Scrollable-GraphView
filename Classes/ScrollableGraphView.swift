@@ -308,8 +308,7 @@ import UIKit
 
     public override func prepareForInterfaceBuilder() {
         super.prepareForInterfaceBuilder()
-
-        setData(data: [10, 2, 34, 11, 22, 11, 44, 9, 12, 4], withLabels: ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"])
+        //setData([10, 2, 34], withLabels: ["One", "Two", "Three"])
     }
 
     private func setup() {
@@ -325,7 +324,7 @@ import UIKit
         self.viewportWidth = self.frame.width
         self.viewportHeight = self.frame.height
 
-        totalGraphWidth = graphWidthForNumberOfDataPoints(numberOfPoints: data.count)
+        totalGraphWidth = graphWidthFor(numberOfPoints: data.count)
         self.contentSize = CGSize(width: totalGraphWidth, height: viewportHeight)
 
         // Scrolling direction.
@@ -356,7 +355,7 @@ import UIKit
         }
 
         if (shouldAdaptRange) { // This supercedes the shouldAutomaticallyDetectRange option
-            let range = calculateRangeForActivePointsInterval(interval: initialActivePointsInterval)
+            let range = calculateRangeForActivePoints(interval: initialActivePointsInterval)
             self.range = range
         }
 
@@ -571,7 +570,7 @@ import UIKit
 
             // If adaption is enabled we want to
             if(shouldAdaptRange) {
-                let newRange = calculateRangeForActivePointsInterval(interval: newActivePointsInterval)
+                let newRange = calculateRangeForActivePoints(interval: newActivePointsInterval)
                 self.range = newRange
             }
         }
@@ -604,7 +603,7 @@ import UIKit
     // MARK: - Public Methods
     // ######################
 
-    public func setData(data: [Double], withLabels labels: [String]) {
+    public func setData(_ data: [Double], withLabels labels: [String]) {
 
         // If we are setting exactly the same data and labels, there's no need to re-init everything.
         if(self.data == data && self.labels == labels) {
@@ -634,20 +633,20 @@ import UIKit
             animation.update(dt: dt)
 
             if animation.finished {
-                dequeueAnimation(animation: animation)
+                dequeueAnimation(animation)
             }
         }
 
         updatePaths()
     }
 
-    private func animatePoint(point: GraphPoint, toPosition position: CGPoint, withDelay delay: Double = 0) {
+    private func animatePoint(_ point: GraphPoint, toPosition position: CGPoint, withDelay delay: Double = 0) {
         let currentPoint = CGPoint(x: point.x, y: point.y)
         let animation = GraphPointAnimation(fromPoint: currentPoint, toPoint: position, forGraphPoint: point)
         animation.animationEasing = getAnimationEasing()
         animation.duration = animationDuration
         animation.delay = delay
-        enqueueAnimation(animation: animation)
+        enqueueAnimation(animation)
     }
 
     private func getAnimationEasing() -> (Double) -> Double {
@@ -668,7 +667,7 @@ import UIKit
         }
     }
 
-    private func enqueueAnimation(animation: GraphPointAnimation) {
+    private func enqueueAnimation(_ animation: GraphPointAnimation) {
         if (currentAnimations.count == 0) {
             // Need to kick off the loop.
             displayLink.isPaused = false
@@ -676,7 +675,7 @@ import UIKit
         currentAnimations.append(animation)
     }
 
-    private func dequeueAnimation(animation: GraphPointAnimation) {
+    private func dequeueAnimation(_ animation: GraphPointAnimation) {
         if let index = currentAnimations.index(of: animation) {
             currentAnimations.remove(at: index)
         }
@@ -736,7 +735,7 @@ import UIKit
         return actualMin ..< actualMax
     }
 
-    private func calculateRangeForActivePointsInterval(interval: Range<Int>) -> (min: Double, max: Double) {
+    private func calculateRangeForActivePoints(interval: Range<Int>) -> (min: Double, max: Double) {
 
         let dataForActivePoints = data[interval]
 
@@ -798,7 +797,7 @@ import UIKit
         }
     }
 
-    private func graphWidthForNumberOfDataPoints(numberOfPoints: Int) -> CGFloat {
+    private func graphWidthFor(numberOfPoints: Int) -> CGFloat {
         let width: CGFloat = (CGFloat(numberOfPoints - 1) * dataPointSpacing) + (leftmostPointPadding + rightmostPointPadding)
         return width
     }
@@ -896,11 +895,11 @@ import UIKit
         return currentLinePath
     }
 
-    private func addStraightLineSegment(startPoint startPoint: CGPoint, endPoint: CGPoint, inPath path: UIBezierPath) {
+    private func addStraightLineSegment(startPoint: CGPoint, endPoint: CGPoint, inPath path: UIBezierPath) {
         path.addLine(to: endPoint)
     }
 
-    private func addCurvedLineSegment(startPoint startPoint: CGPoint, endPoint: CGPoint, inPath path: UIBezierPath) {
+    private func addCurvedLineSegment(startPoint: CGPoint, endPoint: CGPoint, inPath path: UIBezierPath) {
         // calculate control points
         let difference = endPoint.x - startPoint.x
 
@@ -1076,7 +1075,7 @@ import UIKit
         for i in 0...pointsToAnimate.count {
             let newPosition = calculatePosition(index: i, value: data[i])
             let point = graphPoints[i]
-            animatePoint(point: point, toPosition: newPosition, withDelay: Double(index) * stagger)
+            animatePoint(point, toPosition: newPosition, withDelay: Double(index) * stagger)
             index += 1
         }
 
