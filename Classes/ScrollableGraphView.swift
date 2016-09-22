@@ -755,7 +755,7 @@ import UIKit
         return cleanRange(range: range)
     }
 
-    private func calculateRange<T: Collection where T.Iterator.Element == Double>(data: T) -> (min: Double, max: Double) {
+    private func calculateRange<T: Collection>(data: T) -> (min: Double, max: Double) where T.Iterator.Element == Double {
 
         var rangeMin: Double = Double(Int.max)
         var rangeMax: Double = Double(Int.min)
@@ -841,7 +841,7 @@ import UIKit
     }
 
     // MARK: Line Path Creation
-
+    @discardableResult
     private func createLinePath() -> UIBezierPath {
 
         currentLinePath.removeAllPoints()
@@ -1021,7 +1021,7 @@ import UIKit
 
     // Returns the indices of any points that became inactive (that is, "off screen"). (No order)
     private func determineDeactivatedPoints() -> [Int] {
-        var prevSet = setFromClosedRange(range: previousActivePointsInterval)
+        let prevSet = setFromClosedRange(range: previousActivePointsInterval)
         let currSet = setFromClosedRange(range: activePointsInterval)
 
         var deactivatedPoints = Set(prevSet.map { $0 })
@@ -1034,7 +1034,7 @@ import UIKit
     // Returns the indices of any points that became active (on screen). (No order)
     private func determineActivatedPoints() -> [Int] {
         let prevSet = setFromClosedRange(range: previousActivePointsInterval)
-        var currSet = setFromClosedRange(range: activePointsInterval)
+        let currSet = setFromClosedRange(range: activePointsInterval)
 
         var activatedPoints = Set(currSet.map { $0 })
 
@@ -1755,6 +1755,7 @@ private class ReferenceLineDrawingView : UIView {
     }
 
     // FUTURE: Can use the recursive version to create a ruler like look on the edge.
+    @discardableResult
     private func recursiveCreateIntermediateReferenceLines(rect: CGRect, width: CGFloat, forPath path: UIBezierPath, remainingPartitions: Int) -> UIBezierPath {
 
         if(remainingPartitions <= 0) {
